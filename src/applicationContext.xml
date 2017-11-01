@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd">
+	<context:component-scan base-package="com"></context:component-scan>
+	
+	<!-- spring连接池配置 -->
+	<bean name="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+	<!-- 配置mysql的驱动 -->
+	    <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+	<!--配置数据库的位置  -->
+	    <property name="username" value="root"></property>
+	    <property name="password" value="root"></property>
+	</bean>
+	
+	<bean name="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+	           <property name="sessionFactory" ref="sessionFacctory"></property>
+	</bean>
+	
+	<!-- spring和hibernate的整合 -->
+	<!-- 创建sessionFactory -->
+	<bean name="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
+	<!-- 注入数据源 -->
+	<property name="dataSource" ref="dataSource"></property>
+	<property name="hibernateProperties">
+	<props>
+	<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+	<prop key="hibernate.show_sql">true</prop>
+	<prop key="hibernate.format_sql">true</prop>
+	<prop key="hbm2ddl_auto">update</prop>
+	</props>
+	</property>
+	<!-- 配置映射文件 -->
+	<property name="mappingDirectoryLocations">
+	    <list>
+	       <value>classpath:com/bean</value>
+	    </list>
+	</property>
+	</bean>
+	<bean name="userService" class="com.service.UserServiceImpl"></bean>
+	<bean name="userDao" class="com.dao.UserDaoImpl">
+	    <property name="hibernateTemplate" ref="hibernateTemplate"></property>
+	</bean>
+	<!-- 在Spring当中生成struts2的action -->
+	<!-- spring去创建struts2的action对象默认是单例 -->
+	<bean name="userAction" class="com.action.UserAction" scope="prototype"></bean>
+	
+	</beans>
